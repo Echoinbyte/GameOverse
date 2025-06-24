@@ -1,6 +1,7 @@
 import { Brain, CreditCard, Target, Zap } from "lucide-react";
+import { LearningTool } from "@/types";
 
-export const learningTools = [
+export const learningTools: LearningTool[] = [
   {
     title: "Blast",
     description: "Fast-paced knowledge challenges to test your quick thinking",
