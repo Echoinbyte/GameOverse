@@ -3,12 +3,16 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { learningTools } from "@/config/constants/learning-tools";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function HomePage() {
   
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+
+      <Navbar />
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -65,6 +69,8 @@ export default function HomePage() {
             );
           })}
         </div>
+
+        <Footer />
       </div>
     </div>
   );
