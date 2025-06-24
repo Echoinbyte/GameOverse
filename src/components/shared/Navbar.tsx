@@ -21,14 +21,13 @@ function Navbar() {
               >
                 <Home className="w-4 h-4" />
                 <span className="text-sm font-medium">Home</span>
-              </Link>
-
+              </Link>{" "}
               <Link
-                href="/create"
+                href="/dataset-editor"
                 className="flex items-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transition-all duration-300 text-white shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 <Plus className="w-4 h-4" />
-                <span className="text-sm font-semibold">Create</span>
+                <span className="text-sm font-semibold">New Dataset</span>
               </Link>
             </div>
           </div>
