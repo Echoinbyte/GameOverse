@@ -1,12 +1,17 @@
 import Header from "@/components/Header";
 import { DatasetForm } from "@/components/dataset-editor";
 
-interface DatasetEditorProps {
-  searchParams: { id?: string };
+interface Params {
+  id?: string;
 }
 
-export default function DatasetEditor({ searchParams }: DatasetEditorProps) {
-  const isEditing = !!searchParams.id;
+export default async function DatasetEditor({
+  searchParams,
+}: {
+  searchParams: Promise<Params>;
+}) {
+  const { id = undefined } = (await searchParams);
+  const isEditing = !!id;
 
   return (
     <>
@@ -21,7 +26,7 @@ export default function DatasetEditor({ searchParams }: DatasetEditorProps) {
 
       {/* Form Section */}
       <div className="max-w-4xl mx-auto">
-        <DatasetForm datasetId={searchParams.id} />
+        <DatasetForm datasetId={id} />
       </div>
     </>
   );
