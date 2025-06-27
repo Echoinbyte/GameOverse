@@ -1,8 +1,17 @@
-import { GamePair, Dataset } from "@/types";
+import {
+  GamePair,
+  Dataset,
+  FlashcardProgress,
+  FlashcardSession,
+  SelectedDatasets,
+} from "@/types";
 
 const DB_NAME = "GameOverseDB";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const DATASETS_STORE = "datasets";
+const FLASHCARD_PROGRESS_STORE = "flashcardProgress";
+const FLASHCARD_SESSIONS_STORE = "flashcardSessions";
+const SELECTED_DATASETS_STORE = "selectedDatasets";
 
 class IndexedDBManager {
   private db: IDBDatabase | null = null;
@@ -28,6 +37,34 @@ class IndexedDBManager {
           const store = db.createObjectStore(DATASETS_STORE, { keyPath: "id" });
           store.createIndex("name", "name", { unique: false });
           store.createIndex("createdAt", "createdAt", { unique: false });
+        }
+
+        // Create flashcard progress store
+        if (!db.objectStoreNames.contains(FLASHCARD_PROGRESS_STORE)) {
+          const progressStore = db.createObjectStore(FLASHCARD_PROGRESS_STORE, {
+            keyPath: "cardId",
+          });
+          progressStore.createIndex("masteryLevel", "masteryLevel", {
+            unique: false,
+          });
+          progressStore.createIndex("lastReviewed", "lastReviewed", {
+            unique: false,
+          });
+        }
+
+        // Create flashcard sessions store
+        if (!db.objectStoreNames.contains(FLASHCARD_SESSIONS_STORE)) {
+          const sessionsStore = db.createObjectStore(FLASHCARD_SESSIONS_STORE, {
+            keyPath: "id",
+          });
+          sessionsStore.createIndex("startTime", "startTime", {
+            unique: false,
+          });
+        }
+
+        // Create selected datasets store
+        if (!db.objectStoreNames.contains(SELECTED_DATASETS_STORE)) {
+          db.createObjectStore(SELECTED_DATASETS_STORE, { keyPath: "id" });
         }
       };
     });
@@ -63,7 +100,7 @@ class IndexedDBManager {
 
   async getAllDatasets(): Promise<Dataset[]> {
     if (!this.db) {
-      throw new Error("Database not initialized");
+      await this.init();
     }
 
     return new Promise((resolve, reject) => {
@@ -154,6 +191,159 @@ class IndexedDBManager {
       };
     });
   }
+
+  // Flashcard Progress Methods
+  async saveFlashcardProgress(progress: FlashcardProgress): Promise<void> {
+    if (!this.db) {
+      await this.init();
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [FLASHCARD_PROGRESS_STORE],
+        "readwrite"
+      );
+      const store = transaction.objectStore(FLASHCARD_PROGRESS_STORE);
+      const request = store.put(progress);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () =>
+        reject(new Error("Failed to save flashcard progress"));
+    });
+  }
+
+  async getFlashcardProgress(
+    cardId: string
+  ): Promise<FlashcardProgress | null> {
+    if (!this.db) {
+      await this.init();
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [FLASHCARD_PROGRESS_STORE],
+        "readonly"
+      );
+      const store = transaction.objectStore(FLASHCARD_PROGRESS_STORE);
+      const request = store.get(cardId);
+
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () =>
+        reject(new Error("Failed to get flashcard progress"));
+    });
+  }
+
+  async getAllFlashcardProgress(): Promise<FlashcardProgress[]> {
+    if (!this.db) {
+      await this.init();
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [FLASHCARD_PROGRESS_STORE],
+        "readonly"
+      );
+      const store = transaction.objectStore(FLASHCARD_PROGRESS_STORE);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () =>
+        reject(new Error("Failed to get all flashcard progress"));
+    });
+  }
+
+  // Flashcard Session Methods
+  async saveFlashcardSession(session: FlashcardSession): Promise<void> {
+    if (!this.db) {
+      await this.init();
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [FLASHCARD_SESSIONS_STORE],
+        "readwrite"
+      );
+      const store = transaction.objectStore(FLASHCARD_SESSIONS_STORE);
+      const request = store.put(session);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () =>
+        reject(new Error("Failed to save flashcard session"));
+    });
+  }
+
+  async getFlashcardSession(
+    sessionId: string
+  ): Promise<FlashcardSession | null> {
+    if (!this.db) {
+      throw new Error("Database not initialized");
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [FLASHCARD_SESSIONS_STORE],
+        "readonly"
+      );
+      const store = transaction.objectStore(FLASHCARD_SESSIONS_STORE);
+      const request = store.get(sessionId);
+
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () =>
+        reject(new Error("Failed to get flashcard session"));
+    });
+  }
+
+  // Selected Datasets Methods
+  async saveSelectedDatasets(
+    selectedDatasets: SelectedDatasets
+  ): Promise<void> {
+    if (!this.db) {
+      await this.init();
+    }
+
+    const data = { ...selectedDatasets, id: "selected_datasets" };
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [SELECTED_DATASETS_STORE],
+        "readwrite"
+      );
+      const store = transaction.objectStore(SELECTED_DATASETS_STORE);
+      const request = store.put(data);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () =>
+        reject(new Error("Failed to save selected datasets"));
+    });
+  }
+
+  async getSelectedDatasets(): Promise<SelectedDatasets | null> {
+    if (!this.db) {
+      await this.init();
+    }
+
+    return new Promise((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [SELECTED_DATASETS_STORE],
+        "readonly"
+      );
+      const store = transaction.objectStore(SELECTED_DATASETS_STORE);
+      const request = store.get("selected_datasets");
+
+      request.onsuccess = () => {
+        const result = request.result;
+        if (result) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { id: _id, ...selectedDatasets } = result;
+          resolve(selectedDatasets);
+        } else {
+          resolve(null);
+        }
+      };
+      request.onerror = () =>
+        reject(new Error("Failed to get selected datasets"));
+    });
+  }
 }
 
 // Create a singleton instance
@@ -170,3 +360,22 @@ export const updateDataset = (
   updates: Partial<Omit<Dataset, "id" | "createdAt">>
 ) => dbManager.updateDataset(id, updates);
 export const deleteDataset = (id: string) => dbManager.deleteDataset(id);
+
+// Flashcard progress exports
+export const saveFlashcardProgress = (progress: FlashcardProgress) =>
+  dbManager.saveFlashcardProgress(progress);
+export const getFlashcardProgress = (cardId: string) =>
+  dbManager.getFlashcardProgress(cardId);
+export const getAllFlashcardProgress = () =>
+  dbManager.getAllFlashcardProgress();
+
+// Flashcard session exports
+export const saveFlashcardSession = (session: FlashcardSession) =>
+  dbManager.saveFlashcardSession(session);
+export const getFlashcardSession = (sessionId: string) =>
+  dbManager.getFlashcardSession(sessionId);
+
+// Selected datasets exports
+export const saveSelectedDatasets = (selectedDatasets: SelectedDatasets) =>
+  dbManager.saveSelectedDatasets(selectedDatasets);
+export const getSelectedDatasets = () => dbManager.getSelectedDatasets();

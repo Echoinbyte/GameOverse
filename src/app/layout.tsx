@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar, BackgroundAnimation, Footer } from "@/components/shared";
+import DBInitializer from "@/components/shared/DBInitializer";
 import { DatasetProvider } from "@/contexts/DatasetContext";
 import { Toaster } from "react-hot-toast";
 
@@ -26,11 +27,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <DatasetProvider>
+          <DBInitializer />
           <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
             <Navbar />
 
             <BackgroundAnimation />
-            <div className="container mx-auto px-6 py-8 relative z-10">
+            <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 relative z-10">
               {children}
 
               <Footer />

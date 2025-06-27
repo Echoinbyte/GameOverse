@@ -10,7 +10,7 @@ export default async function DatasetEditor({
 }: {
   searchParams: Promise<Params>;
 }) {
-  const { id = undefined } = (await searchParams);
+  const { id = undefined } = await searchParams;
   const isEditing = !!id;
 
   return (
