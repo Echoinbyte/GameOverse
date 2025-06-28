@@ -34,7 +34,7 @@ export default function LearningToolCard({ tool }: LearningToolCardProps) {
         <div className="opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
           <div className="flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20">
             <span className="text-sm text-white font-semibold">
-              Start Learning
+              {tool.title === "FlashCard" ? "Start Learning" : "Coming Soon"}
             </span>
             <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform duration-300" />
           </div>
